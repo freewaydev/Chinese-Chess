@@ -23,61 +23,77 @@ validation_steps = 200
 
 
 def create_cnn_model():
-	model = Sequential()
-	### Conv layer 1
-	model.add(Convolution2D(
-		input_shape=(56, 56, 3),
-		filters=32,
-		kernel_size=3,
-		strides=1,
-		padding='same',
-		data_format='channels_last',
-		activation='relu'
-	))
-	model.add(MaxPooling2D(
-		pool_size=2,
-		strides=2,
-		padding='same',
-		data_format='channels_last',
-	))
-	### Conv layer 2
-	model.add(Convolution2D(32, 3, strides=1, padding='same', data_format='channels_last', activation='relu'))
-	model.add(MaxPooling2D(2, 2, padding='same', data_format='channels_last'))
+    """
+    Create a Convolutional Neural Network (CNN) model for image classification.
 
-	### Conv layer 3
-	model.add(Convolution2D(64, 3, strides=1, padding='same', data_format='channels_last', activation='relu'))
-	model.add(MaxPooling2D(2, 2, padding='same', data_format='channels_last'))
-	model.add(Dropout(0.25))
+    This function defines a CNN model consisting of several convolutional layers, max
+    pooling layers, dropout layers, and fully connected layers.
+    The model is compiled with the Adam optimizer and categorical cross-entropy loss function.
+    Finally, the pre-trained weights are loaded into the model and the model is returned.
+    """
+    model = Sequential()
+    ### Conv layer 1
+    model.add(Convolution2D(
+    	input_shape=(56, 56, 3),
+    	filters=32,
+    	kernel_size=3,
+    	strides=1,
+    	padding='same',
+    	data_format='channels_last',
+    	activation='relu'
+    ))
+    model.add(MaxPooling2D(
+    	pool_size=2,
+    	strides=2,
+    	padding='same',
+    	data_format='channels_last',
+    ))
+    ### Conv layer 2
+    model.add(Convolution2D(32, 3, strides=1, padding='same', data_format='channels_last', activation='relu'))
+    model.add(MaxPooling2D(2, 2, padding='same', data_format='channels_last'))
 
-	### FC
-	model.add(Flatten())
-	model.add(Dense(256, activation='relu'))
-	model.add(Dropout(0.5))
+    ### Conv layer 3
+    model.add(Convolution2D(64, 3, strides=1, padding='same', data_format='channels_last', activation='relu'))
+    model.add(MaxPooling2D(2, 2, padding='same', data_format='channels_last'))
+    model.add(Dropout(0.25))
 
-	model.add(Dense(NUM_CLASSES, activation='softmax', name='output'))
+    ### FC
+    model.add(Flatten())
+    model.add(Dense(256, activation='relu'))
+    model.add(Dropout(0.5))
 
-	model.compile(optimizer='Adam',
-				  loss='categorical_crossentropy',
-				  metrics=['accuracy'])
-	model.load_weights(loaded_model_path, by_name=True)
-	return model
+    model.add(Dense(NUM_CLASSES, activation='softmax', name='output'))
+    model.compile(optimizer='Adam',
+    			  loss='categorical_crossentropy',
+    			  metrics=['accuracy'])
+    model.load_weights(loaded_model_path, by_name=True)
+    return model
 
 def create_vgg_model():
-	base_model = VGG19(weights='imagenet', include_top=False, input_shape=(56, 56, 3))
-	for layer in base_model.layers:
-		layer.trainable = False
-	x = base_model.output
-	x = GlobalAveragePooling2D()(x)
-	x = Dense(1024, activation='relu')(x)
-	x = Dense(512, activation='relu')(x)
-	x = Dense(256, activation='relu')(x)
-	x = Dropout(0.5)(x)
-	x = Dense(NUM_CLASSES, activation='softmax', name='output')(x)
-	model = Model(inputs=base_model.input, outputs=x)
-	model.compile(optimizer='Adam',
-				  loss='categorical_crossentropy',
-				  metrics=['accuracy'])
-	return model
+    """
+    Create a VGG19 model for image classification.
+    This function loads the pre-trained VGG19 model with weights from the 'imagenet' dataset
+    and sets the top layer to be non-trainable. It then adds some additional layers to the model
+    for fine-tuning, including a global average pooling layer, several dense layers with ReLU
+    activation, a dropout layer, and a final dense layer with softmax activation.
+    The function compiles the model with the Adam optimizer, categorical cross-entropy loss,
+    and accuracy metric. Finally, the function returns the compiled model.
+    """
+    base_model = VGG19(weights='imagenet', include_top=False, input_shape=(56, 56, 3))
+    for layer in base_model.layers:
+        layer.trainable = False
+    x = base_model.output
+    x = GlobalAveragePooling2D()(x)
+    x = Dense(1024, activation='relu')(x)
+    x = Dense(512, activation='relu')(x)
+    x = Dense(256, activation='relu')(x)
+    x = Dropout(0.5)(x)
+    x = Dense(NUM_CLASSES, activation='softmax', name='output')(x)
+    model = Model(inputs=base_model.input, outputs=x)
+    model.compile(optimizer='Adam',
+    			  loss='categorical_crossentropy',
+    			  metrics=['accuracy'])
+    return model
 
 #model = create_cnn_model()
 model = create_vgg_model()
