@@ -15,26 +15,25 @@ file_path = '/Users/jartus/Chinese-Chess/Dataset/finetune/'
 file_path = '/Users/jartus/Chinese-Chess/Dataset/train/b_ju/b_ju_285.png'
 
 def evaluate_one(weights, file_path):
-	model = load_model(weights)
-	x = cv2.imread(file_path)
-	x = cv2.resize(x, target_size)
-	x = cv2.cvtColor(x, cv2.COLOR_BGR2RGB)
-	x = x / 255
-	x = np.expand_dims(x, axis=0)
-	preds = model.predict_classes(x)
-	print(label_type[int(preds)])
+    model = load_model(weights)
+    x = cv2.imread(file_path)
+    x = cv2.resize(x, target_size)
+    x = cv2.cvtColor(x, cv2.COLOR_BGR2RGB)
+    x = x / 255
+    x = np.expand_dims(x, axis=0)
+    preds = model.predict_classes(x)
+    print(label_type[int(preds)])
 def evaluate(weights, file_path):    # Input is a directory, Output is the total number and error number
-	model = load_model(weights)
-	for i in os.listdir(file_path):
-		if i == '.DS_Store':
-			continue
-		x = cv2.imread(file_path + i)
-		x = cv2.resize(x, target_size)
-		x = cv2.cvtColor(x, cv2.COLOR_BGR2RGB)
-		x = np.expand_dims(x, axis=0)
-		preds = model.predict(x)
-		preds = np.around(preds)
-		print(label_type[np.where(preds[0] == 1)[0][0]])
+    model = load_model(weights)
+    for i in os.listdir(file_path):
+        if i == '.DS_Store':
+            continue
+        x = cv2.imread(file_path + i)
+        x = cv2.resize(x, target_size)
+        x = cv2.cvtColor(x, cv2.COLOR_BGR2RGB)
+        x = np.expand_dims(x, axis=0)
+        preds = model.predict(x)
+        preds = np.around(preds)
+        print(label_type[np.where(preds[0] == 1)[0][0]])
 
 evaluate(weights, file_path)
-#evaluate_one(weights, file_path)
